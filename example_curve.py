@@ -26,7 +26,7 @@ com = 'COM3'
 baudrate = '115200'
 
 VOLTS_MIN = 0.0
-VOLTS_MAX = 5.0
+VOLTS_MAX = 3.0
 CURR_MIN = -0.01
 CURR_MAX = 0.006
 
@@ -42,10 +42,12 @@ val['source']['current'] = np.zeros(N_POINTS)
 #%%
 tracer = curvetracer(com, baudrate, log_level=1)
 tracer.write(':SOUR:CURR:LIM ' + str(CURR_MAX))
+time.sleep(T_SETTLE)
 tracer.write(':SOUR:VOLT:LEV ' + str(VOLTS_MIN))
+time.sleep(T_SETTLE)
 tracer.write(':CURR:RANG ' + str(0.005))
+time.sleep(T_SETTLE)
 
-#%%
 for k in range(0, N_POINTS):
     vset = round(VOLTS_MIN + (VOLTS_SWEEP / N_POINTS * k), 3)
     tracer.write(':SOUR:VOLT ' + str(vset))
@@ -62,7 +64,7 @@ tracer.close()
 #%%
 # use r'$3.4 \Omega$' for Latex Math mode
 plt.figure(figsize=(8,5))
-plt.plot(val['source']['voltage'], val['source']['current'])
+plt.plot(val['source']['voltage'][10:], val['source']['current'][10:])
 plt.xlabel(r'voltage [V]')
 plt.ylabel(r'current [A]')
 plt.title(r'current-voltage curve of a 1$k\Omega$ resistor')

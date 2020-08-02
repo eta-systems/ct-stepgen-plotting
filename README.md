@@ -15,8 +15,13 @@ tracer = curvetracer('COM3', 115200)
 tracer.write(':SOUR:CURR:LIM ' + str(CURR_MAX))
 ```
 
-### Example
+### Examples
 
-The example code produces the following curve:
+The example code produces the following curves:
+
+![1N4007.png](1N4007.png)
 
 ![1kR_resistor.png](1kR_resistor.png)
+
+
+
