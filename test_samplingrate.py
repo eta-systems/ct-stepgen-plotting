@@ -2,30 +2,15 @@
 """
 @author:   simon burkhardt
 @copyright (c) 2020 eta systems GmbH. All rights reserved.
-@date      2020-08-02
-@brief     Example to trace and plot a diode curve with 100 data points
+@date      2020-08-05
+@brief     Example to trace and plot a simple resistor curve with 100 data points
 
 This Software is distributed WITHOUT ANY WARRANTY; 
 without even the implied warranty of MERCHANTABILITY 
 or FITNESS FOR A PARTICULAR PURPOSE. 
 """
 
-"""
-1N4007
 
-https://diotec.com/tl_files/diotec/files/pdf/datasheets/1n4001.pdf
-https://www.diodes.com/assets/Datasheets/ds28002.pdf
-
-If typ = 30 mA
-Vf typ = 0.8 V
-
-If max < 0.8 A
-Vf max < 1.1 V
-
-Ir max < 15 uA
-Vr max < 1 kV
-
-"""
 #%%
 
 import time
@@ -44,15 +29,16 @@ import matplotlib.pyplot as plt
 com = 'COM3'
 baudrate = '115200'
 
-VOLTS_MIN = -0.5
-VOLTS_MAX =  0.64
+VOLTS_MIN = -5.0
+VOLTS_MAX =  5.0
 CURR_MIN = -0.05
 CURR_MAX =  0.05
 
 N_POINTS  = 100
-N_OVERSAMPLE = 10
+N_OVERSAMPLE = 1
 VOLTS_SWEEP = VOLTS_MAX - VOLTS_MIN
-T_SETTLE = 0.010
+T_SETTLE = 0.0015
+T_DELAY = 0.000
 
 val = {}
 val['source'] = {}
@@ -65,7 +51,7 @@ tracer.write('*RST')
 time.sleep(1.5)
 tracer.close()
 
-tracer = curvetracer(com, baudrate, log_level=1)
+tracer = curvetracer(com, baudrate, log_level=0)
 tracer.write(':SOUR:CURR:LIM ' + str(CURR_MAX))     # OCP
 time.sleep(T_SETTLE)
 tracer.write(':SOUR:VOLT:LIM ' + str(22.0))         # OVP
@@ -85,9 +71,9 @@ for k in range(0, N_POINTS):
     
     for i in range(N_OVERSAMPLE):
         vread += float(tracer.request(':MEAS:VOLT?'))
-        time.sleep(T_SETTLE)
+        #time.sleep(T_DELAY)
         iread += float(tracer.request(':MEAS:CURR?'))
-        time.sleep(T_SETTLE)
+        #time.sleep(T_DELAY)
     vread /= float(N_OVERSAMPLE)
     iread /= float(N_OVERSAMPLE) / 1000.0 # mA
     val['source']['voltage'][k] = vread
@@ -112,6 +98,12 @@ plt.savefig('1N4007_curve.pdf')
 
 #%% close COM Port if exeption occurrs
 tracer.close()
+
+
+#%% Print for Excel
+
+for k in range(len(val['source']['voltage'])):
+    print(str(val['source']['voltage'][k]) + '\t' + str(val['source']['current'][k]))
 
 
 

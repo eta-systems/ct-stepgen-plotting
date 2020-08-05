@@ -51,7 +51,8 @@ class curvetracer:
             print('[q] ' + str(message), end='')
         self.instr.write(bytes(message + str('\r\n'), 'utf-8')) 
         val = self.instr.read_until()
-        print(val.decode('utf-8'), end='')
+        if(self.log_level>0):
+            print(val.decode('utf-8'), end='')
         return val.decode('utf-8')  # convert bytestring to utf-8
         
     def close(self):
